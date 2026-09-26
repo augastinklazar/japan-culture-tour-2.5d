@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An immersive 2.5D Japanese Culture Tour experience celebrating Shinto Torii portals, Ukiyo-e floating world art, Kintsugi golden repair, and Zen aesthetic philosophy.">
+  <title>幽玄 YŪGEN — 2.5D Japanese Culture Tour</title>
+
+  <!-- Google Fonts: Shippori Mincho, Noto Sans JP, Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- External Libraries via Fast, Production-Grade CDNs -->
+  <!-- 1. GSAP + ScrollTrigger for scroll-linked kinematics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <!-- 2. Lenis for momentum-based buttery smooth scrolling -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
+  <!-- 3. Zdog for 2.5D vector illustration & pseudo-3D canvas rendering -->
+  <script src="https://unpkg.com/zdog@1.1.3/dist/zdog.dist.min.js"></script>
+
+  <!-- 4. Anime.js for complex SVG stroke-dashoffset line-drawing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+</head>
+<body class="loading-active">
+
+  <!-- SVG Global Filter Definitions (Washi Texture, Gold Foil, Drop Shadows) -->
+  <svg class="svg-defs" aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Handmade Echizen Washi Paper Noise Filter -->
+      <filter id="washi-grain" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.16 0" in="noise" result="coloredNoise" />
+        <feComposite operator="in" in2="SourceGraphic" />
+      </filter>
+
+      <!-- Woodblock Ink Bleed Filter (Bokashi Edge Softening) -->
+      <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="bleedNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="bleedNoise" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feGaussianBlur stdDeviation="0.4" in="displaced" />
+      </filter>
+
+      <!-- Kintsugi Liquid Gold Shimmer Filter -->
+      <filter id="gold-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3.5" result="blur1" />
+        <feGaussianBlur stdDeviation="7" result="blur2" />
+        <feMerge>
+          <feMergeNode in="blur2" />
+          <feMergeNode in="blur1" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <!-- Traditional Hanko Ink Stamp Filter -->
+      <filter id="hanko-bleed">
+        <feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="2" result="rough" />
+        <feDisplacementMap in="SourceGraphic" in2="rough" scale="1.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+      <!-- Linear Gradient for Kintsugi Gold Veins -->
+      <linearGradient id="kintsugi-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFE885" />
+        <stop offset="35%" stop-color="#D4AF37" />
+        <stop offset="70%" stop-color="#B38728" />
+        <stop offset="100%" stop-color="#FDF0A6" />
+      </linearGradient>
+
+      <!-- Linear Gradient for Ukiyo-e Deep Indigo Waves -->
+      <linearGradient id="ukiyo-wave-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+        <stop offset="0%" stop-color="#0E1D2D" />
+        <stop offset="50%" stop-color="#1B3855" />
+        <stop offset="85%" stop-color="#2D557B" />
+        <stop offset="100%" stop-color="#F4F2E8" />
+      </linearGradient>
+
+      <!-- Hinode Crimson Sun Gradient -->
+      <radialGradient id="hinode-grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#E22E58" />
+        <stop offset="60%" stop-color="#CB1B45" />
+        <stop offset="100%" stop-color="#8F0D2B" />
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <!-- Atmospheric & Texture Overlays (Tactile Washi, Kinpaku Shimmer & Dynamic Wind) -->
+  <div class="atmospheric-system" aria-hidden="true">
+    <div class="texture-overlay washi-paper-overlay"></div>
+    <div class="texture-overlay washi-fiber-overlay"></div>
+    <div class="kinpaku-shimmer-overlay" id="kinpaku-overlay"></div>
+    <!-- Dedicated Full-Screen Canvas for Wind Streamlines & Drifting Flakes -->
+    <canvas id="wind-canvas" class="wind-canvas"></canvas>
+  </div>
+
+  <!-- 2.5D Animated Background Ecosystem (Pagoda, Matsu Trees & Kumo Clouds) -->
+  <div id="bg-ecosystem" class="bg-ecosystem" aria-hidden="true">
+    <!-- Deep Background: Stylized Kumo Traditional Japanese Clouds (Pure SVG) -->
+    <div class="clouds-layer" id="clouds-layer">
+      <!-- Upper Yamagasumi scalloped cloud bank with Celadon & Gofun tones -->
+      <svg class="kumo-svg cloud-bank-1" viewBox="0 0 1440 500" preserveAspectRatio="none">
+        <path d="M -100 120 
+                 Q 80 80, 240 110 
+                 T 560 85 
+                 T 900 125 
+                 T 1240 90 
+                 T 1600 115 
+                 L 1600 240 
+                 Q 1380 270, 1180 225 
+                 T 780 260 
+                 T 420 215 
+                 T 120 250 
+                 T -100 205 Z" 
+                 fill="#81C7D4" opacity="0.14" />
+        <!-- Swirling Cloud Spirals (Kumo-mon) -->
+        <path d="M 180 140 
+                 C 220 120, 280 125, 300 160 
+                 C 320 195, 290 230, 250 225 
+                 C 220 220, 210 190, 230 175 
+                 C 245 165, 265 175, 260 190" 
+                 fill="none" stroke="#81C7D4" stroke-width="2.5" opacity="0.22" />
+        <path d="M 1020 120 
+                 C 1060 100, 1120 105, 1140 140 
+                 C 1160 175, 1130 210, 1090 205 
+                 C 1060 200, 1050 170, 1070 155 
+                 C 1085 145, 1105 155, 1100 170" 
+                 fill="none" stroke="#FFFFFB" stroke-width="2.5" opacity="0.32" />
+      </svg>
+
+      <!-- Mid Yamagasumi cloud bank with swirling curls -->
+      <svg class="kumo-svg cloud-bank-2" viewBox="0 0 1440 500" preserveAspectRatio="none">
+        <path d="M -80 280 
+                 Q 160 240, 380 270 
+                 T 780 235 
+                 T 1140 285 
+                 T 1550 250 
+                 L 1550 380 
+                 Q 1320 420, 1060 375 
+                 T 620 410 
+                 T 240 365 
+                 T -80 395 Z" 
+                 fill="#FFFFFB" opacity="0.18" />
+        <path d="M 680 290 
+                 C 720 270, 780 275, 800 310 
+                 C 820 345, 790 380, 750 375 
+                 C 720 370, 710 340, 730 325 
+                 C 745 315, 765 325, 760 340" 
+                 fill="none" stroke="#81C7D4" stroke-width="2" opacity="0.2" />
+      </svg>
+    </div>
+
+    <!-- Midground: 2.5D Zdog Canvas Container for Pagoda, Pine Trees & Chochin Lanterns -->
+    <div id="bg-canvas-container" class="bg-canvas-container">
+      <canvas id="bg-ecosystem-canvas" class="bg-ecosystem-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Custom Calligraphic Shodo (書道) Ink Brush Cursor Canvas -->
+  <canvas id="shodo-canvas" class="shodo-canvas" aria-hidden="true"></canvas>
+
+  <!-- 1. The Global Loader (Pre-loader) -->
+  <aside id="global-loader" class="global-loader" aria-label="Loading Experience">
+    <div class="loader-content">
+      <!-- Zen Enso Circle SVG with Authentic Calligraphic Brush Stroke Contour -->
+      <div class="enso-container">
+        <svg class="enso-svg" viewBox="0 0 300 300" width="220" height="220" xmlns="http://www.w3.org/2000/svg">
+          <!-- Guide circle background -->
+          <circle cx="150" cy="150" r="110" fill="none" stroke="rgba(28, 28, 28, 0.05)" stroke-width="22" stroke-linecap="round" />
+          <!-- Animated Enso Zen Brush Path -->
+          <path id="enso-path" class="enso-path" 
+            d="M 148 40 
+               C 215 38, 262 88, 260 152 
+               C 258 218, 208 260, 148 260 
+               C 85 260, 40 212, 40 148 
+               C 40 85, 88 42, 142 40
+               C 180 38, 215 52, 238 82" 
+            fill="none" 
+            stroke="#1C1C1C" 
+            stroke-width="18" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" />
+          <!-- Splatter dots for calligraphic realism -->
+          <circle cx="242" cy="85" r="3" fill="#1C1C1C" class="enso-splatter s1" />
+          <circle cx="248" cy="94" r="1.5" fill="#1C1C1C" class="enso-splatter s2" />
+          <circle cx="236" cy="74" r="2" fill="#1C1C1C" class="enso-splatter s3" />
+        </svg>
+
+        <!-- Hanko Seal Stamp inside the Enso during loading -->
+        <div class="loader-seal" aria-hidden="true">
+          <span>幽<br>玄</span>
+        </div>
+      </div>
+
+      <!-- Monospace Percentage Counter -->
+      <div class="loader-status">
+        <div class="loader-counter-wrap">
+          <span id="loader-counter" class="loader-counter">000%</span>
+        </div>
+        <p class="loader-caption">心を静めて待つ <span class="divider">/</span> ENTERING THE SANCTUARY</p>
+        <div class="loader-bar-bg">
+          <div id="loader-bar-progress" class="loader-bar-progress"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Sticky Minimalist Navigation Bar -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="#portal" class="brand-hanko" aria-label="Yūgen Return to Top">
+        <span class="hanko-seal" title="幽玄 Yūgen">幽<br>玄</span>
+        <div class="brand-text">
+          <span class="kanji-title">日本文化巡礼</span>
+          <span class="en-title">JAPAN CULTURE TOUR</span>
+        </div>
+      </a>
+
+      <!-- SPA Nav Links -->
+      <nav class="main-nav" aria-label="Site Sections">
+        <ul class="nav-list">
+          <li><a href="#portal" class="nav-link active" data-nav="portal"><span class="nav-num">01</span><span class="nav-kanji">鳥居</span> Portal</a></li>
+          <li><a href="#ukiyo" class="nav-link" data-nav="ukiyo"><span class="nav-num">02</span><span class="nav-kanji">浮世絵</span> Ukiyo-e</a></li>
+          <li><a href="#kintsugi" class="nav-link" data-nav="kintsugi"><span class="nav-num">03</span><span class="nav-kanji">金継ぎ</span> Kintsugi</a></li>
+          <li><a href="#zen-garden" class="nav-link" data-nav="zen-garden"><span class="nav-num">04</span><span class="nav-kanji">枯山水</span> Ma & Zen</a></li>
+          <li><a href="./narrative.html" class="nav-link nav-link-narrative" data-nav="narrative"><span class="nav-num">05</span><span class="nav-kanji">思想</span> Philosophy</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right Header Controls: Tokyo Clock & Generative Audio Toggle -->
+      <div class="header-actions">
+        <div class="tokyo-clock" title="Current Time in Tokyo (JST)">
+          <span class="clock-label">TOKYO JST</span>
+          <span id="tokyo-time" class="clock-time">00:00:00</span>
+        </div>
+
+        <button id="audio-toggle" class="audio-toggle-btn" aria-label="Toggle Zen Ambient Audio" title="Toggle Soundscape">
+          <span class="sound-bars" aria-hidden="true">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+          </span>
+          <span class="audio-label">SOUND</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Fixed Side Chapter Index (Vertical Japanese Typography) -->
+  <aside class="vertical-chapter-rail" aria-hidden="true">
+    <div class="rail-indicator">
+      <div class="rail-progress-line" id="rail-progress-line"></div>
+    </div>
+    <div class="rail-meta">
+      <span class="rail-current-section" id="rail-current-section">壱 門</span>
+      <span class="rail-sub">SHINTO / UKIYO / KINTSUGI / MA</span>
+    </div>
+  </aside>
+
+  <!-- MAIN SCROLL CONTAINER FOR SPA EXPERIENCE -->
+  <main id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <!-- =========================================================================
+           2. HOME PAGE (THE PORTAL) — 2.5D ZDOG TORII GATE
+           ========================================================================= -->
+      <section id="portal" class="section section-hero" data-section="01">
+        <div class="hero-bg-ambience">
+          <div class="mist-layer mist-far"></div>
+          <div class="mist-layer mist-near"></div>
+          <div class="hero-sun-glow"></div>
+        </div>
+
+        <!-- Hero Typography & Vertical Quotes -->
+        <div class="hero-content-grid">
+          <!-- Left: Vertical Japanese Calligraphy Quote -->
+          <div class="vertical-quote-col left-col">
+            <div class="vertical-text-block">
+              <span class="kanji-vertical">神域と現世を繋ぐ朱の門。</span>
+              <span class="kanji-vertical sub-quote">一歩踏み込めば、静謐の刻が始まる。</span>
+            </div>
+            <div class="vertical-caption">
+              <span class="caption-tag">一の鳥居</span>
+              <span class="caption-en">THE SACRED BORDER</span>
+            </div>
+          </div>
+
+          <!-- Center: 2.5D Zdog Torii Gate Interactive Canvas Stage -->
+          <div class="torii-stage-container">
+            <div class="torii-canvas-wrapper" id="torii-wrapper">
+              <canvas id="torii-canvas" class="torii-canvas" width="800" height="800"></canvas>
+              <div class="torii-shadow"></div>
+            </div>
+
+            <!-- Hero Headline Behind / Framing the Torii -->
+            <div class="hero-text-overlay">
+              <span class="hero-kanji-watermark">幽玄</span>
+              <p class="hero-eyebrow">A CULTURAL IMMERSION IN 2.5 DIMENSIONS</p>
+              <h1 class="hero-title">
+                <span class="title-line">YŪGEN</span>
+                <span class="title-sub">BEYOND SIGHT & REALM</span>
+              </h1>
+            </div>
+          </div>
+
+          <!-- Right: Philosophical Annotation & Hanko Stamp -->
+          <div class="vertical-quote-col right-col">
+            <div class="hanko-card">
+              <div class="hanko-seal seal-kurenai">常<br>世</div>
+              <p class="card-caption">
+                <strong>TORII (鳥居)</strong><br>
+                The traditional Japanese gate signaling the boundary between the mundane profane world and sacred Shinto sanctuary.
+              </p>
+            </div>
+            <div class="scroll-instruction">
+              <div class="ink-droplet-arrow"></div>
+              <span class="scroll-text">SCROLL TO STEP THROUGH</span>
+              <span class="scroll-kanji">潜る</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Sanctuary Transition Horizon -->
+        <div class="portal-horizon"></div>
+      </section>
+
+
+      <!-- =========================================================================
+           3. ART & UKIYO-E SECTION (浮世絵) — LAYERED 2.5D PARALLAX
+           ========================================================================= -->
+      <section id="ukiyo" class="section section-ukiyo" data-section="02">
+        <div class="section-header">
+          <div class="header-stamp-row">
+            <span class="section-tag-hanko">浮世絵</span>
+            <span class="section-number-tag">CHAPTER 02 — THE FLOATING WORLD</span>
+          </div>
+          <h2 class="section-heading">Ukiyo-e Parallax Stage</h2>
+          <p class="section-lead">
+            The Edo period celebrated transience — fleeting beauties captured across layered cherry woodblocks. Experience spatial depth inspired by Katsushika Hokusai and Utagawa Hiroshige.
+          </p>
+        </div>
+
+        <!-- Parallax Scene Viewport (Multi-Layer Depth Composition) -->
+        <div class="ukiyo-parallax-stage" id="ukiyo-stage">
+          
+          <!-- Background Layer 01: The Celestial Sky, Rising Hinode Sun & Mt. Fuji -->
+          <div class="ukiyo-layer layer-bg" data-depth="0.1">
+            <svg class="ukiyo-svg-bg" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+              <!-- Hinode Crimson Sun -->
+              <circle cx="720" cy="380" r="160" fill="url(#hinode-grad)" class="parallax-sun" />
+              <!-- Sacred Mt. Fuji Silhouette with Pure Snow Crest -->
+              <path class="fuji-mountain" d="M 440 650 L 670 260 L 770 260 L 1000 650 Z" fill="#203348" />
+              <!-- Snow Peak Snowpack (Kansetsu) -->
+              <path class="fuji-snow" d="M 670 260 L 690 310 L 710 290 L 725 330 L 745 295 L 755 320 L 770 260 Z" fill="#FFFFFB" />
+              <!-- Cloud Bands (Yamagasumi) -->
+              <g class="fuji-clouds" fill="#ECE9DD" opacity="0.85">
+                <rect x="250" y="440" width="380" height="24" rx="12" />
+                <rect x="320" y="475" width="220" height="16" rx="8" />
+                <rect x="850" y="420" width="400" height="22" rx="11" />
+                <rect x="910" y="452" width="260" height="15" rx="7" />
+              </g>
+            </svg>
+          </div>
+
+          <!-- Midground Layer 02: Coastal Pines, Traditional Wasen Boats & Sea Mist -->
+          <div class="ukiyo-layer layer-mid" data-depth="0.3">
+            <svg class="ukiyo-svg-mid" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+              <!-- Distant Rocky Shoals -->
+              <path d="M 0 680 Q 200 610 380 660 Q 560 700 800 650 Q 1100 600 1440 670 L 1440 800 L 0 800 Z" fill="#1B2936" opacity="0.6" />
+              <!-- Traditional Wasen Wooden Fishing Boats -->
+              <g class="wasen-boat boat-1" transform="translate(480, 520) scale(0.7)">
+                <path d="M 20 50 Q 80 85 160 55 L 175 35 Q 100 45 10 40 Z" fill="#4B382A" />
+                <line x1="85" y1="45" x2="85" y2="10" stroke="#322216" stroke-width="3" />
+                <polygon points="85,12 85,42 125,38 120,16" fill="#F4EEDC" opacity="0.9" />
+                <!-- Silhouetted Fisherman -->
+                <circle cx="65" cy="38" r="4" fill="#1C1C1C" />
+                <path d="M 61 42 L 70 42 L 67 52 L 60 52 Z" fill="#1C1C1C" />
+                <!-- Conical Bamboo Hat (Sugegasa) -->
+                <polygon points="58,36 72,36 65,30" fill="#B39352" />
+              </g>
+              <g class="wasen-boat boat-2" transform="translate(980, 550) scale(0.55)">
+                <path d="M 20 50 Q 80 85 160 55 L 175 35 Q 100 45 10 40 Z" fill="#3B2A1E" />
+                <line x1="85" y1="45" x2="85" y2="10" stroke="#322216" stroke-width="3" />
+                <polygon points="85,12 85,42 125,38 120,16" fill="#E8E2D0" opacity="0.85" />
+              </g>
+              <!-- Ancient Matsu (Pine Tree) Silhouettes on Left Promontory -->
+              <g class="matsu-grove" transform="translate(40, 410) scale(0.9)">
+                <path d="M 60 260 Q 90 180 80 120 Q 75 70 120 40 Q 90 60 70 110 Q 60 170 30 260 Z" fill="#15211B" />
+                <!-- Pine needle foliage clusters -->
+                <ellipse cx="125" cy="45" rx="45" ry="18" fill="#1E3327" />
+                <ellipse cx="90" cy="80" rx="38" ry="16" fill="#1B2D23" />
+                <ellipse cx="140" cy="95" rx="35" ry="15" fill="#243C2E" />
+                <ellipse cx="65" cy="130" rx="30" ry="14" fill="#1A2820" />
+              </g>
+            </svg>
+          </div>
+
+          <!-- Foreground Layer 03: The Great Wave Crests & Dynamic Water Claws -->
+          <div class="ukiyo-layer layer-fore" data-depth="0.6">
+            <svg class="ukiyo-svg-fore" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+              <!-- Swelling Ocean Trough -->
+              <path class="wave-body-base" d="M -50 800 L -50 620 Q 250 670 550 560 Q 880 430 1150 580 Q 1300 660 1500 600 L 1500 800 Z" fill="url(#ukiyo-wave-grad)" />
+              
+              <!-- Surging Great Wave with Iconic Curled Talons -->
+              <path class="great-wave-crest" d="M -30 650 
+                C 150 660, 240 580, 320 490 
+                C 400 400, 480 320, 620 280 
+                C 570 300, 530 330, 520 370 
+                C 510 400, 540 430, 530 460 
+                C 515 500, 450 510, 410 540 
+                C 330 600, 210 680, -30 730 Z" 
+                fill="#162D42" />
+
+              <!-- White Foam Claws (Nami no Tsume) -->
+              <path class="wave-foam-talons" d="M 620 280 
+                C 640 260, 670 265, 680 290 
+                C 660 290, 650 310, 630 315 
+                C 645 320, 665 330, 655 350 
+                C 635 345, 625 365, 605 360 
+                C 615 375, 625 390, 610 405 
+                C 590 395, 580 415, 560 410
+                C 565 425, 560 445, 540 450 
+                L 520 370 Z" 
+                fill="#FFFFFB" />
+
+              <!-- Secondary Right-Side Crest -->
+              <path class="wave-crest-right" d="M 980 800 
+                C 1050 710, 1150 630, 1280 580 
+                C 1380 540, 1460 550, 1500 580 
+                L 1500 800 Z" 
+                fill="#1B3855" />
+            </svg>
+          </div>
+
+          <!-- Foreground Layer 04: Dynamic Sea Foam Spray Particles Canvas -->
+          <canvas id="ukiyo-spray-canvas" class="ukiyo-spray-canvas" aria-hidden="true"></canvas>
+
+          <!-- Interactive UI Overlay for Ukiyo-e Section -->
+          <div class="ukiyo-stage-overlay">
+            <div class="vertical-annotation">
+              <span class="va-kanji">波間に漂う一葉の舟</span>
+              <span class="va-romaji">A leaf of a boat adrift in surging waves</span>
+            </div>
+
+            <!-- Woodblock Color Separation Inspector Pill -->
+            <div class="woodblock-controller" role="group" aria-label="Woodblock Layer Isolation">
+              <span class="controller-title">WOODBLOCK LAYERS / 版画分解:</span>
+              <div class="layer-buttons">
+                <button class="layer-btn active" data-layer-filter="all">ALL (合本)</button>
+                <button class="layer-btn" data-layer-filter="sumi">SUMI (墨線)</button>
+                <button class="layer-btn" data-layer-filter="indigo">AI (藍波)</button>
+                <button class="layer-btn" data-layer-filter="crimson">SHU (朱日)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Reflection Card -->
+        <div class="ukiyo-philosophy-row">
+          <div class="concept-card">
+            <div class="concept-num">01 / CONCEPT</div>
+            <h3 class="concept-title">UKIYO — THE FLOATING REALM (浮世)</h3>
+            <p class="concept-desc">
+              Originally a Buddhist term for the sorrowful world of earthly illusions, the Edo populace transformed <em>Ukiyo</em> into "The Floating World" — a celebration of ephemeral pleasure, theatrical drama, and nature’s fleeting poetry.
+            </p>
+          </div>
+          <div class="concept-card">
+            <div class="concept-num">02 / MASTERY</div>
+            <h3 class="concept-title">BOKASHI GRADATION (ぼかし)</h3>
+            <p class="concept-desc">
+              The seamless transition between deep Prussian blue and washi white was achieved by master block-printers delicately moistening the wood before applying pigment with a horsehair brush.
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =========================================================================
+           4. PHILOSOPHY (KINTSUGI INTERACTION) — GOLDEN JOINERY
+           ========================================================================= -->
+      <section id="kintsugi" class="section section-kintsugi" data-section="03">
+        <div class="section-header">
+          <div class="header-stamp-row">
+            <span class="section-tag-hanko">金継ぎ</span>
+            <span class="section-number-tag">CHAPTER 03 — PHILOSOPHY OF IMPERFECTION</span>
+          </div>
+          <h2 class="section-heading">Kintsugi — Golden Restoration</h2>
+          <p class="section-lead">
+            When a beloved ceramic vessel fractures, masters of Kintsugi do not hide the breaks. They seal each wound with natural Urushi lacquer dusted in pure 24-karat gold leaf. The repaired vessel becomes more resilient, more poignant, and far more beautiful than before it was broken.
+          </p>
+        </div>
+
+        <!-- Interactive Kintsugi Experience Stage -->
+        <div class="kintsugi-interactive-container" id="kintsugi-container">
+          
+          <!-- Left: Vertical Philosophical Quote -->
+          <div class="kintsugi-quote-side">
+            <div class="vertical-text-block">
+              <span class="kanji-vertical">割れを隠さず、金の光で継ぐ。</span>
+              <span class="kanji-vertical sub-quote">傷こそが、器の歴史であり魂の深みとなる。</span>
+            </div>
+            <div class="hanko-seal seal-gold">侘<br>寂</div>
+          </div>
+
+          <!-- Center: Fractured Raku Tea Bowl (Chawan) SVG Stage -->
+          <div class="chawan-stage-wrapper">
+            <div class="chawan-viewport" id="chawan-viewport">
+              
+              <!-- Shimmering Golden Dust Particles Canvas Overlay -->
+              <canvas id="kintsugi-dust-canvas" class="kintsugi-dust-canvas" aria-hidden="true"></canvas>
+
+              <svg id="chawan-svg" class="chawan-svg" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Drop shadow beneath the ceramic bowl -->
+                <ellipse cx="300" cy="460" rx="190" ry="24" fill="rgba(28, 28, 28, 0.12)" class="chawan-floor-shadow" />
+
+                <!-- RAKU CERAMIC SHARDS (5 Distinct Fractured Segments with Deep Glaze Textures) -->
+                <!-- Shard A: Left Upper Rim -->
+                <path id="shard-a" class="chawan-shard shard-a" 
+                  d="M 120 180 
+                     C 150 140, 200 125, 250 120 
+                     L 245 220 
+                     C 210 235, 180 250, 160 280 
+                     L 125 240 
+                     Z" 
+                  fill="#2A2421" stroke="#1F1A18" stroke-width="1.5" />
+
+                <!-- Shard B: Center Upper Rim & Bowl Core -->
+                <path id="shard-b" class="chawan-shard shard-b" 
+                  d="M 250 120 
+                     C 300 115, 360 120, 420 135 
+                     L 380 230 
+                     C 340 220, 290 230, 245 220 
+                     Z" 
+                  fill="#362E2A" stroke="#1F1A18" stroke-width="1.5" />
+
+                <!-- Shard C: Right Rim & Side Flank -->
+                <path id="shard-c" class="chawan-shard shard-c" 
+                  d="M 420 135 
+                     C 460 145, 490 170, 500 200 
+                     C 505 240, 480 300, 440 350 
+                     L 370 320 
+                     L 380 230 
+                     Z" 
+                  fill="#26201D" stroke="#1F1A18" stroke-width="1.5" />
+
+                <!-- Shard D: Lower Left Body & Kodai (Footring) Base -->
+                <path id="shard-d" class="chawan-shard shard-d" 
+                  d="M 160 280 
+                     C 180 250, 210 235, 245 220 
+                     L 280 310 
+                     L 240 400 
+                     C 200 395, 180 360, 150 330 
+                     Z" 
+                  fill="#3D3430" stroke="#1F1A18" stroke-width="1.5" />
+
+                <!-- Shard E: Lower Right Base & Footring -->
+                <path id="shard-e" class="chawan-shard shard-e" 
+                  d="M 245 220 
+                     C 290 230, 340 220, 380 230 
+                     L 370 320 
+                     C 360 370, 330 400, 290 405 
+                     L 240 400 
+                     L 280 310 
+                     Z" 
+                  fill="#2C2522" stroke="#1F1A18" stroke-width="1.5" />
+
+                <!-- Glaze speckles / Raku iron flecks -->
+                <circle cx="200" cy="180" r="2" fill="#8C7355" opacity="0.6" />
+                <circle cx="330" cy="170" r="2.5" fill="#8C7355" opacity="0.5" />
+                <circle cx="430" cy="230" r="1.8" fill="#8C7355" opacity="0.7" />
+                <circle cx="280" cy="350" r="2.2" fill="#8C7355" opacity="0.6" />
+
+                <!-- GOLDEN URUSHI LACQUER VEINS (Mended Fractures Animated by Anime.js) -->
+                <!-- Vein 1: Central vertical fault line -->
+                <path id="gold-vein-1" class="gold-vein" 
+                  d="M 250 120 
+                     C 248 160, 246 190, 245 220 
+                     C 255 260, 270 285, 280 310 
+                     C 265 340, 250 375, 240 400" 
+                  fill="none" 
+                  stroke="url(#kintsugi-gold-grad)" 
+                  stroke-width="5" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  filter="url(#gold-glow)" />
+
+                <!-- Vein 2: Diagonal fault to left flank -->
+                <path id="gold-vein-2" class="gold-vein" 
+                  d="M 245 220 
+                     C 210 235, 180 250, 160 280 
+                     C 155 305, 140 315, 125 330" 
+                  fill="none" 
+                  stroke="url(#kintsugi-gold-grad)" 
+                  stroke-width="4.5" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  filter="url(#gold-glow)" />
+
+                <!-- Vein 3: Diagonal fault to right rim -->
+                <path id="gold-vein-3" class="gold-vein" 
+                  d="M 380 230 
+                     C 340 220, 290 230, 245 220" 
+                  fill="none" 
+                  stroke="url(#kintsugi-gold-grad)" 
+                  stroke-width="4.2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  filter="url(#gold-glow)" />
+
+                <!-- Vein 4: Lower right basal fault -->
+                <path id="gold-vein-4" class="gold-vein" 
+                  d="M 380 230 
+                     C 375 270, 370 300, 370 320 
+                     C 340 370, 315 390, 290 405" 
+                  fill="none" 
+                  stroke="url(#kintsugi-gold-grad)" 
+                  stroke-width="4.5" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  filter="url(#gold-glow)" />
+
+                <!-- Vein 5: Fine micro-crack Branch -->
+                <path id="gold-vein-5" class="gold-vein" 
+                  d="M 280 310 
+                     C 310 315, 340 318, 370 320" 
+                  fill="none" 
+                  stroke="url(#kintsugi-gold-grad)" 
+                  stroke-width="3" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  filter="url(#gold-glow)" />
+              </svg>
+            </div>
+
+            <!-- Interactive Golden Scars Scrub Control Bar -->
+            <div class="kintsugi-controls">
+              <div class="scrub-meta">
+                <span class="scrub-label">RESTORATION CYCLE (修復工程)</span>
+                <span id="kintsugi-percent" class="scrub-val">0% MENDED</span>
+              </div>
+              <input type="range" id="kintsugi-slider" class="kintsugi-slider" min="0" max="100" value="0" aria-label="Kintsugi fracture restoration progress">
+              <div class="scrub-milestones">
+                <span>FRACTURED (破片)</span>
+                <span>URUSHI RESIN (漆固め)</span>
+                <span>GOLD ILLUMINATION (金蒔き)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Wabi-Sabi Essay Column -->
+          <div class="kintsugi-essay-col">
+            <div class="essay-badge">WABI-SABI (侘寂)</div>
+            <h3 class="essay-heading">The Dignity of Wounds</h3>
+            <p class="essay-body">
+              Western conservation traditionally pursues pristine illusion — concealing cracks to pretend nothing broke. Kintsugi inverts this paradigm completely. 
+            </p>
+            <p class="essay-body">
+              Originating in the 15th century when Shōgun Ashikaga Yoshimasa sent a damaged Chinese celadon tea bowl back for repair, Japanese artisans refused ugly metal staples. Instead, they forged an alchemy: resin gathered from the lacquer tree (<em>Toxicodendron vernicifluum</em>) dusted with powdered gold leaf (<em>Kinsunago</em>).
+            </p>
+            <div class="quote-callout">
+              <p class="callout-text">
+                "There is a crack in everything; that is how the light gets in."
+              </p>
+              <span class="callout-author">— Mono no Aware & Wabi-Sabi synthesis</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =========================================================================
+           5. MA (間) & ZEN GARDEN SECTION — NEGATIVE SPACE & RAKED SAND
+           ========================================================================= -->
+      <section id="zen-garden" class="section section-zen" data-section="04">
+        <div class="section-header">
+          <div class="header-stamp-row">
+            <span class="section-tag-hanko">枯山水</span>
+            <span class="section-number-tag">CHAPTER 04 — THE ART OF STILLNESS</span>
+          </div>
+          <h2 class="section-heading">Ma (間) — Raked Sand Sanctuary</h2>
+          <p class="section-lead">
+            <em>Ma</em> is the Japanese aesthetic of empty space, silence, and pause. In a dry stone garden (<em>Karesansui</em>), ripples raked into white gravel evoke ocean waves without a single drop of water. Move your brush to rake the sands of contemplation.
+          </p>
+        </div>
+
+        <!-- Interactive Zen Sand Raking Canvas -->
+        <div class="zen-canvas-container">
+          <canvas id="zen-sand-canvas" class="zen-sand-canvas" width="1200" height="600"></canvas>
+          <div class="zen-canvas-hints">
+            <span class="hint-pulse"></span>
+            <span class="hint-text">MOVE CURSOR TO RAKE GRAVEL / CLICK TO PLACE MOSS STONE (石を配す)</span>
+          </div>
+          <button id="zen-reset-btn" class="zen-action-btn">SMOOTH GRAVEL (整地)</button>
+        </div>
+
+        <!-- Four Principles Grid (Wa, Kei, Sei, Jaku) -->
+        <div class="principles-grid">
+          <div class="principle-item">
+            <span class="principle-kanji">和</span>
+            <h4 class="principle-name">WA — HARMONY</h4>
+            <p class="principle-desc">The oneness between host, guest, nature, and the utensils of the moment.</p>
+          </div>
+          <div class="principle-item">
+            <span class="principle-kanji">敬</span>
+            <h4 class="principle-name">KEI — RESPECT</h4>
+            <p class="principle-desc">Sincere reverence for every being, object, and fleeting condition encountered.</p>
+          </div>
+          <div class="principle-item">
+            <span class="principle-kanji">清</span>
+            <h4 class="principle-name">SEI — PURITY</h4>
+            <p class="principle-desc">Cleansing not only physical dust, but the turbulent agitation of the ego.</p>
+          </div>
+          <div class="principle-item">
+            <span class="principle-kanji">寂</span>
+            <h4 class="principle-name">JAKU — TRANQUILITY</h4>
+            <p class="principle-desc">The deep stillness and unshakeable serenity born from the first three paths.</p>
+          </div>
+        </div>
+
+        <!-- Gateway to Narrative Experience (思想篇) -->
+        <div class="narrative-gateway-card">
+          <div class="gateway-kanji-watermark">美意識</div>
+          <div class="gateway-content">
+            <span class="gateway-sub">PHILOSOPHY & AESTHETICS (思想篇)</span>
+            <h3 class="gateway-title">Four Aesthetic Realms of Japanese Thought</h3>
+            <p class="gateway-desc">
+              Journey into four profound philosophies: the 72 micro-seasons (七十二候) rotating on a 2.5D solar dial, the unobtrusive mastery of Shibui (渋い) revealed by your brush, Edo’s vibrant and asymmetrical Iki (粋) cool, and the golden reassembly of Kintsugi (金継ぎ).
+            </p>
+            <a href="./narrative.html" class="gateway-action-btn" id="narrative-gateway-btn">
+              <span>ENTER PHILOSOPHICAL REALMS (思想篇を観る)</span>
+              <span class="gateway-arrow">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           SITE FOOTER (COLOPHON, INITIATIVE CREDITS & SEALS)
+           ========================================================================= -->
+      <footer class="site-footer">
+        <div class="footer-grid">
+          <!-- Column 1: Brand & Aesthetic Vision -->
+          <div class="footer-brand-col">
+            <div class="hanko-seal seal-kurenai">巡<br>礼</div>
+            <div class="footer-brand-text">
+              <span class="f-kanji">幽玄 — 日本美の深奥へ</span>
+              <span class="f-en">YŪGEN: AN IMMERSIVE 2.5D CULTURAL JOURNEY</span>
+            </div>
+            <p class="footer-desc">
+              A bespoke digital craft experience celebrating timeless Japanese aesthetics, spatial depth, and contemplative philosophy. Hand-sculpted in Canvas, SVG, Zdog, GSAP, and Anime.js.
+            </p>
+          </div>
+
+          <!-- Column 2: Initiative & Creator Credits -->
+          <div class="footer-initiative-col">
+            <span class="col-title">INITIATIVE & CREDITS</span>
+            <div class="initiative-meta">
+              <h4 class="initiative-title">Project AKL</h4>
+              <p class="initiative-desc">An education Information Initiative by <strong>augastinklazar</strong></p>
+            </div>
+            <ul class="social-links">
+              <li>
+                <a href="https://github.com/augastinklazar" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub — augastinklazar">
+                  <svg class="social-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                  </svg>
+                  <span>github.com/augastinklazar</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/augastin-k-lazar/" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn — augastin-k-lazar">
+                  <svg class="social-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                  <span>linkedin.com/in/augastin-k-lazar</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Navigation -->
+          <div class="footer-links-col">
+            <span class="col-title">NAVIGATION</span>
+            <ul class="footer-links">
+              <li><a href="#portal">01 — Shinto Torii Gate (鳥居)</a></li>
+              <li><a href="#ukiyo">02 — Ukiyo-e Parallax (浮世絵)</a></li>
+              <li><a href="#kintsugi">03 — Kintsugi Bowl (金継ぎ)</a></li>
+              <li><a href="#zen-garden">04 — Ma & Zen Garden (枯山水)</a></li>
+              <li><a href="./narrative.html" style="color: var(--color-kurenai); font-weight: 600;">05 — Aesthetic Philosophies (思想篇) →</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Specification -->
+          <div class="footer-meta-col">
+            <span class="col-title">SPECIFICATION</span>
+            <ul class="spec-list">
+              <li><span>Palette:</span> Sumi (#1C1C1C) / Gofun (#FFFFFB) / Kurenai (#CB1B45)</li>
+              <li><span>Paper:</span> Echizen Washi Procedural Noise Shader</li>
+              <li><span>Typography:</span> Shippori Mincho & Noto Sans JP</li>
+              <li><span>Deploy:</span> Production-Ready GitHub Pages SPA</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+          <span class="copyright">一期一会 © 2026 Project AKL — An education Information Initiative by augastinklazar. All rights reserved.</span>
+          <a href="#portal" class="back-to-top" id="back-to-top" aria-label="Return to the beginning">
+            TOP OF SANCTUARY <span class="arrow-up">↑</span>
+          </a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- Main ES Module Application Script Entry Point -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

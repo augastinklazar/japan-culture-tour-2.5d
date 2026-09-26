@@ -1,0 +1,32 @@
+{
+  "name": "japan-culture-tour-2.5d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An award-winning interactive 2.5D Japanese Culture Tour web experience featuring Zdog, GSAP, Anime.js, and Lenis.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.2.0",
+    "vite": "^6.0.0"
+  },
+  "keywords": [
+    "creative-developer",
+    "japanese-culture",
+    "zdog",
+    "gsap",
+    "scrolltrigger",
+    "animejs",
+    "lenis",
+    "awwwards",
+    "canvas",
+    "kintsugi",
+    "ukiyo-e"
+  ],
+  "author": "augastinklazar (Project AKL - An education Information Initiative)",
+  "license": "MIT"
+}

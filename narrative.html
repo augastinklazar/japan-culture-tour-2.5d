@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A profound 4-part exploration into Japanese aesthetic philosophy: Shichijūni Kō (72 Micro-Seasons), Shibui (Austere Restraint), Iki (Effortless Flair), and Kintsugi (The Golden Repair).">
+  <title>思想 SHISŌ — Japanese Aesthetic Philosophy & Narrative Tour</title>
+
+  <!-- Google Fonts: Shippori Mincho, Noto Sans JP, Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- External Libraries via CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/zdog@1.1.3/dist/zdog.dist.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+</head>
+<body class="narrative-body">
+
+  <!-- SVG Global Filter Definitions (Washi, Ink Bleed, Gold Glow) -->
+  <svg class="svg-defs" aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Handmade Echizen Washi Paper Noise Filter -->
+      <filter id="washi-grain" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.16 0" in="noise" result="coloredNoise" />
+        <feComposite operator="in" in2="SourceGraphic" />
+      </filter>
+
+      <!-- Woodblock Ink Bleed Filter (Bokashi Edge Softening) -->
+      <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="bleedNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="bleedNoise" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feGaussianBlur stdDeviation="0.4" in="displaced" />
+      </filter>
+
+      <!-- Kintsugi Liquid Gold Shimmer Filter -->
+      <filter id="gold-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="4" result="blur1" />
+        <feGaussianBlur stdDeviation="9" result="blur2" />
+        <feMerge>
+          <feMergeNode in="blur2" />
+          <feMergeNode in="blur1" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <!-- Linear Gradient for Kintsugi Gold Veins -->
+      <linearGradient id="narrative-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFF3B0" />
+        <stop offset="35%" stop-color="#D4AF37" />
+        <stop offset="70%" stop-color="#AA8222" />
+        <stop offset="100%" stop-color="#FFE885" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Atmospheric & Washi Texture Overlays -->
+  <div class="atmospheric-system" aria-hidden="true">
+    <div class="texture-overlay washi-paper-overlay"></div>
+    <div class="texture-overlay washi-fiber-overlay"></div>
+    <div class="kinpaku-shimmer-overlay" id="kinpaku-overlay"></div>
+  </div>
+
+  <!-- Custom Calligraphic Shodo Ink Brush Cursor Canvas -->
+  <canvas id="shodo-canvas" class="shodo-canvas" aria-hidden="true"></canvas>
+
+  <!-- Sticky Minimalist Navigation Bar -->
+  <header class="site-header narrative-header" id="site-header">
+    <div class="header-inner">
+      <a href="./index.html" class="brand-hanko" aria-label="Return to Portal Home">
+        <span class="hanko-seal" title="幽玄 Yūgen">幽<br>玄</span>
+        <div class="brand-text">
+          <span class="kanji-title">← 序章へ戻る</span>
+          <span class="en-title">RETURN TO PORTAL</span>
+        </div>
+      </a>
+
+      <!-- Narrative Section Jump Links -->
+      <nav class="main-nav" aria-label="Philosophy Sections">
+        <ul class="nav-list">
+          <li><a href="#shichijuni-ko" class="nav-link"><span class="nav-num">01</span><span class="nav-kanji">七十二候</span> Seasons</a></li>
+          <li><a href="#shibui" class="nav-link"><span class="nav-num">02</span><span class="nav-kanji">渋味</span> Shibui</a></li>
+          <li><a href="#iki" class="nav-link"><span class="nav-num">03</span><span class="nav-kanji">粋</span> Iki</a></li>
+          <li><a href="#kintsugi" class="nav-link"><span class="nav-num">04</span><span class="nav-kanji">金継ぎ</span> Kintsugi</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <div class="tokyo-clock" title="Current Time in Tokyo (JST)">
+          <span class="clock-label">TOKYO JST</span>
+          <span id="tokyo-time" class="clock-time">00:00:00</span>
+        </div>
+
+        <button id="audio-toggle" class="audio-toggle-btn" aria-label="Toggle Zen Ambient Audio" title="Toggle Soundscape">
+          <span class="sound-bars" aria-hidden="true">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+          </span>
+          <span class="audio-label">SOUND</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Fixed Side Chapter Index (Vertical Japanese Typography) -->
+  <aside class="vertical-chapter-rail narrative-rail" aria-hidden="true">
+    <div class="rail-indicator">
+      <div class="rail-progress-line" id="narrative-scroll-progress"></div>
+    </div>
+    <div class="rail-meta">
+      <span class="rail-current-section" id="narrative-rail-label">01 七十二候 — SHICHIJŪNI KŌ</span>
+      <span class="rail-sub">PHILOSOPHY & AESTHETICS</span>
+    </div>
+  </aside>
+
+  <!-- SCROLLABLE PHILOSOPHY CONTAINER -->
+  <main id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <!-- =========================================================================
+           1. SECTION: SHICHIJŪNI KŌ (THE 72 MICRO-SEASONS)
+           ========================================================================= -->
+      <section id="shichijuni-ko" class="narrative-section section-shichijuni" data-theme="shichijuni">
+        <!-- 2.5D Zdog Astrolabe / Solar Dial Canvas Background -->
+        <div class="seasonal-dial-wrapper" aria-hidden="true">
+          <canvas id="seasonal-dial-canvas" class="seasonal-dial-canvas"></canvas>
+        </div>
+
+        <div class="narrative-container">
+          <div class="narrative-grid">
+            
+            <!-- Left: Vertical Japanese Calligraphy Pull-Quote -->
+            <div class="vertical-quote-col">
+              <div class="vertical-text-block">
+                <span class="kanji-vertical">五日ごとに巡る万物の気配。</span>
+                <span class="kanji-vertical sub-quote">季節は移ろうのではなく、常に息づいている。</span>
+              </div>
+              <div class="vertical-caption">
+                <span class="caption-tag">七十二候</span>
+                <span class="caption-en">NATURE'S 72 BREATHS</span>
+              </div>
+            </div>
+
+            <!-- Center-Right: Editorial Article Content -->
+            <div class="narrative-article-body">
+              <div class="editorial-meta-header">
+                <span class="section-tag-hanko">七十二候</span>
+                <span class="editorial-kicker">01 / ASTRONOMICAL POETRY & TIMELESS MINDFULNESS</span>
+              </div>
+
+              <h1 class="narrative-title">
+                The Seventy-Two Micro-Seasons of Japan
+              </h1>
+              <p class="narrative-subtitle">
+                <em>Shichijūni Kō</em> (七十二候) — The art of attuning the human spirit to the earth’s five-day metabolic shifts.
+              </p>
+
+              <div class="article-paragraphs">
+                <p>
+                  While the modern Western calendar segments the annual revolution into four monolithic quarters, ancient Japan refined time with staggering poetic intimacy. Borrowing initially from classical Chinese agricultural astronomy and subsequently recalibrated during the Edo period by court astronomer Shibukawa Shunkai in 1685, the Japanese calendar divides the 24 major solar terms (<em>Nijūshi Sekki</em>) into seventy-two micro-seasons (<em>Shichijūni Kō</em>). Each micro-season lasts roughly five days, bearing names that read like haiku fragments: <em>Higashikaze kōri o toku</em> ("The East Wind Melts the Ice"), <em>Momo hajimete saku</em> ("First Peach Blossoms Unfurl"), or <em>Kawasumi hajimete miru</em> ("First Fireflies Emerge from Waters").
+                </p>
+
+                <p>
+                  This microscopic calibration of time nurtured a consciousness where change is not feared as loss, but reverenced as life’s essential cadence. In traditional tea ceremonies, seasonal confectionery (<em>wagashi</em>) and flower arrangements (<em>chabana</em>) shift weekly to mirror the fleeting bloom of the current five-day window. To be Japanese was not merely to live in spring, but to recognize the precise three-day window when the spring swallows first glide across thatched eaves.
+                </p>
+
+                <p>
+                  As you scroll through this narrative, the brass astrolabe dial behind this text rotates in physical synchrony with your reading pace. Its concentric rings trace the 24 solar milestones and 72 micro-ticks, serving as a reminder that mindfulness is not stillness in a vacuum, but deep harmony with the ceaseless turning of nature’s wheel.
+                </p>
+              </div>
+
+              <div class="micro-season-pills">
+                <span class="season-pill"><strong class="pill-kanji">立春</strong> Spring Begins</span>
+                <span class="season-pill"><strong class="pill-kanji">霞始靆</strong> Mist First Lingers</span>
+                <span class="season-pill"><strong class="pill-kanji">草木萌動</strong> Grass & Trees Sprout</span>
+                <span class="season-pill"><strong class="pill-kanji">菜虫化蝶</strong> Caterpillars Become Butterflies</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           2. SECTION: SHIBUI (THE BEAUTY OF RESTRAINT)
+           ========================================================================= -->
+      <section id="shibui" class="narrative-section section-shibui" data-theme="shibui">
+        <div class="narrative-container">
+          <div class="narrative-grid">
+            
+            <!-- Left: Vertical Calligraphy -->
+            <div class="vertical-quote-col">
+              <div class="vertical-text-block">
+                <span class="kanji-vertical">華美を脱ぎ捨てて辿り着く、静かなる至高。</span>
+                <span class="kanji-vertical sub-quote">用の美に宿る永遠の深み。</span>
+              </div>
+              <div class="vertical-caption">
+                <span class="caption-tag">渋味</span>
+                <span class="caption-en">AUSTERE SUBTLETY</span>
+              </div>
+            </div>
+
+            <!-- Center: Interactive Calligraphy Scratch-Mask Article -->
+            <div class="shibui-interactive-wrapper">
+              <div class="editorial-meta-header">
+                <span class="section-tag-hanko">渋味</span>
+                <span class="editorial-kicker">02 / INTERACTIVE SHODO ERASURE MASK</span>
+              </div>
+
+              <h2 class="narrative-title">
+                Shibui — The Deep Eloquence of Stillness
+              </h2>
+
+              <div class="shibui-brush-prompt">
+                <span class="brush-icon">🖌️</span>
+                <span class="brush-instruction">MOVE YOUR BRUSH OVER THE DARKNESS TO REVEAL THE HIDDEN WISDOM / 墨を払い文字を照らす</span>
+                <button id="shibui-reveal-btn" class="shibui-reveal-btn">REVEAL ALL (全開示)</button>
+              </div>
+
+              <!-- Text Container: Low contrast underneath, masked by Canvas -->
+              <div class="shibui-text-container">
+                <div class="shibui-text-content">
+                  <p>
+                    Rooted in the adjective <em>shibui</em> (渋い)—originally describing the puckering, dry astringency of an unripe persimmon—this philosophy matured through Zen tea culture into the supreme aesthetic ideal of austere sophistication. Unlike flashy ornamentation that exhaustively announces itself, a <em>shibui</em> object possesses a quiet, unassertive dignity. It is an aesthetic of subtle restraint: simple yet harboring endless depth, rough yet profoundly pleasant to touch, quiet yet commanding unshakeable reverence.
+                  </p>
+
+                  <p>
+                    Philosopher Yanagi Sōetsu, father of the Mingei (folk crafts) movement, observed that the greatest handmade ceramics and textiles never shout for admiration. A weathered Bizen sake pitcher or an indigo-dyed hemp kimono does not seduce the eye with slick gloss; instead, its beauty ripens across decades of daily utility. What is easily comprehended is quickly abandoned, but that which holds secrets yields deeper beauty with every passing season.
+                  </p>
+
+                  <p>
+                    The canvas mask you brush away evokes this truth: the highest aesthetic virtues in Japanese thought are never handed to passive spectators on polished silver platters. They require patience, intentional presence, and an active willingness to sweep away worldly noise to behold the luminous silver truths resting in the dark.
+                  </p>
+                </div>
+
+                <!-- Calligraphic Destination-Out Mask Canvas -->
+                <canvas id="shibui-mask-canvas" class="shibui-mask-canvas"></canvas>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           3. SECTION: IKI (EDO'S EFFORTLESS FLAIR)
+           ========================================================================= -->
+      <section id="iki" class="narrative-section section-iki" data-theme="iki">
+        <div class="narrative-container">
+          
+          <div class="editorial-meta-header text-center">
+            <span class="section-tag-hanko">粋</span>
+            <span class="editorial-kicker">03 / ASYMMETRICAL EDO MODERNITY</span>
+          </div>
+
+          <!-- Sharp Asymmetrical Editorial Grid -->
+          <div class="iki-asymmetrical-grid">
+            
+            <!-- Grid Cell 1: Giant Floating Vertical Kanji (Sliding from bottom) -->
+            <div class="iki-grid-cell cell-kanji" data-speed="0.6">
+              <div class="iki-kanji-monumental">粋</div>
+              <span class="iki-romaji-vertical">I · K · I</span>
+            </div>
+
+            <!-- Grid Cell 2: Header & Thesis Statement (Sliding from left) -->
+            <div class="iki-grid-cell cell-header" data-speed="1.2" data-direction="x">
+              <h2 class="iki-title">
+                The Defiant Chic of the Edo Underworld
+              </h2>
+              <div class="iki-quote-box">
+                <p class="iki-quote-text">
+                  "To flaunt one's wealth is vulgar (<em>yabo</em>); to conceal it behind understated grace is true <em>iki</em>."
+                </p>
+                <span class="iki-author">— Kuki Shūzō, <em>The Structure of 'Iki'</em> (1930)</span>
+              </div>
+            </div>
+
+            <!-- Grid Cell 3: Vertical Cultural Pull-Quote -->
+            <div class="iki-grid-cell cell-vertical-pull" data-speed="0.8">
+              <div class="vertical-text-block">
+                <span class="kanji-vertical">禁制が生んだ裏勝りの美学。</span>
+                <span class="kanji-vertical sub-quote">表は地味な木綿、裏に秘めた絢爛たる絹の粋。</span>
+              </div>
+            </div>
+
+            <!-- Grid Cell 4: Narrative Column A (Standard speed) -->
+            <div class="iki-grid-cell cell-para-1" data-speed="1.0">
+              <h3 class="cell-subheading">URABASARI — SECRET SPLENDOR</h3>
+              <p>
+                During the mid-Edo period, the authoritarian Tokugawa Shogunate enacted severe sumptuary edicts (<em>ken'yaku-rei</em>) strictly forbidding merchant commoners from wearing bright silks, gold embroidery, or ostentatious robes. Rather than succumbing to dreary uniformity, the vibrant townspeople (<em>chōnin</em>) of Nihonbashi and Yoshiwara engineered a rebellious cultural coup called <em>Urabasari</em> ("hidden lining victory").
+              </p>
+              <p>
+                From the outside, their coats (<em>haori</em>) appeared to be humble, drab browns, indigos, or charcoal cottons. But the interior linings—hidden from the watchful eyes of Shogunate patrolmen—were lavishly tailored with forbidden crimson silks and bespoke woodblock paintings by masters like Utamaro. True refinement was only glimpsed when the wind whipped a jacket hem, revealing a world of forbidden brilliance for half a heartbeat.
+              </p>
+            </div>
+
+            <!-- Grid Cell 5: Narrative Column B (Fast Parallax) -->
+            <div class="iki-grid-cell cell-para-2" data-speed="1.35">
+              <h3 class="cell-subheading">THE TRIAD OF CHIC</h3>
+              <p>
+                In his seminal 1930 treatise, philosopher Kuki Shūzō dissected <em>iki</em> as an irreducible triad of three psychic tensions:
+              </p>
+              <ul class="iki-triad-list">
+                <li><strong>Bitai (媚態 — Coquetry):</strong> A playful erotic magnetism maintained entirely through tantalizing emotional distance.</li>
+                <li><strong>Iji (意気地 — Brave Pride):</strong> An aristocratic defiance, born of the samurai spirit, refusing to be purchased by mere money.</li>
+                <li><strong>Akirame (諦め — Resignation):</strong> A serene Buddhist detachment that recognizes the transience of all earthly pleasures.</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           4. SECTION: KINTSUGI (THE GOLDEN REPAIR)
+           ========================================================================= -->
+      <section id="kintsugi" class="narrative-section section-kintsugi-narrative" data-theme="kintsugi">
+        <div class="narrative-container">
+          <div class="narrative-grid">
+            
+            <!-- Left: Vertical Quote -->
+            <div class="vertical-quote-col">
+              <div class="vertical-text-block">
+                <span class="kanji-vertical">器の割れ目を歴史として尊ぶ。</span>
+                <span class="kanji-vertical sub-quote">金で継がれた傷こそが、魂の深き証となる。</span>
+              </div>
+              <div class="vertical-caption">
+                <span class="caption-tag">金継ぎ</span>
+                <span class="caption-en">GOLDEN JOINERY</span>
+              </div>
+            </div>
+
+            <!-- Center: 2.5D Zdog Fragment Reassembly Stage -->
+            <div class="kintsugi-reassembly-wrapper">
+              <div class="editorial-meta-header">
+                <span class="section-tag-hanko">金継ぎ</span>
+                <span class="editorial-kicker">04 / SCROLL-REWIND 2.5D FRAGMENT REPAIR</span>
+              </div>
+
+              <h2 class="narrative-title">
+                Kintsugi — Honoring the Architecture of Scars
+              </h2>
+
+              <!-- 2.5D Zdog Broken Bowl Canvas + Anime.js SVG Gold Seam Overlay -->
+              <div class="kintsugi-zdog-stage" id="kintsugi-stage">
+                <!-- Zdog Canvas rendering 5 floating, scattered ceramic shards -->
+                <canvas id="kintsugi-zdog-canvas" class="kintsugi-zdog-canvas"></canvas>
+
+                <!-- Glowing Gold Vein SVG Overlay (Animated by Anime.js) -->
+                <svg id="kintsugi-gold-seams-svg" class="kintsugi-gold-seams-svg" viewBox="0 0 560 500" aria-hidden="true">
+                  <!-- Golden Halo Bloom -->
+                  <circle cx="280" cy="245" r="140" fill="url(#narrative-gold-grad)" opacity="0" class="kintsugi-gold-halo" filter="url(#gold-glow)" />
+
+                  <!-- Glowing Gold Veins mapped over the Zdog piece seams -->
+                  <path class="narrative-gold-seam seam-1" 
+                    d="M 235 155 Q 240 210, 245 255 Q 260 280, 275 315 Q 255 350, 240 375" 
+                    fill="none" stroke="url(#narrative-gold-grad)" stroke-width="4.5" stroke-linecap="round" filter="url(#gold-glow)" />
+                  <path class="narrative-gold-seam seam-2" 
+                    d="M 245 255 Q 215 270, 185 300 Q 155 315, 135 330" 
+                    fill="none" stroke="url(#narrative-gold-grad)" stroke-width="4" stroke-linecap="round" filter="url(#gold-glow)" />
+                  <path class="narrative-gold-seam seam-3" 
+                    d="M 345 255 Q 300 248, 245 255" 
+                    fill="none" stroke="url(#narrative-gold-grad)" stroke-width="3.8" stroke-linecap="round" filter="url(#gold-glow)" />
+                  <path class="narrative-gold-seam seam-4" 
+                    d="M 345 255 Q 340 290, 335 320 Q 310 365, 275 375" 
+                    fill="none" stroke="url(#narrative-gold-grad)" stroke-width="4.2" stroke-linecap="round" filter="url(#gold-glow)" />
+                </svg>
+
+                <div class="stage-caption">
+                  <span class="stage-kicker">SCROLL DOWN TO MEND THE BOWL / スクロールで修復を完成させる</span>
+                </div>
+              </div>
+
+              <!-- Editorial Prose -->
+              <div class="article-paragraphs">
+                <p>
+                  In the Western classical tradition, an object broken is an object ruined. Restorers toil to conceal fractures with undetectable resin, enforcing a fiction that nothing broke and time never passed. <em>Kintsugi</em> (金継ぎ, "golden joinery") fundamentally repudiates this shame. When an ancient tea bowl shatters, Japanese masters gather the shards, bond them with natural Urushi tree lacquer, and dust the healing seams with 24-karat gold leaf (<em>Kinpaku</em>).
+                </p>
+
+                <p>
+                  The vessel is not returned to its former state; it is reborn. Its fracture lines—unique, organic, and forged through trauma—become its most illuminating adornment. To hold a Kintsugi tea bowl is to drink from an intimate testament of resilience. The vessel acknowledges that vulnerability and breakage are not deviations from life, but the very crucible in which enduring beauty is distilled.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           NARRATIVE FOOTER & RETURN PORTAL
+           ========================================================================= -->
+      <footer class="site-footer narrative-footer">
+        <div class="footer-grid">
+          <div class="footer-brand-col">
+            <div class="hanko-seal seal-kurenai">思<br>想</div>
+            <div class="footer-brand-text">
+              <span class="f-kanji">幽玄 — 日本美の深奥へ</span>
+              <span class="f-en">PHILOSOPHICAL NARRATIVE & AESTHETIC COMPENDIUM</span>
+            </div>
+            <p class="footer-desc">
+              A bespoke digital craft experience celebrating timeless Japanese aesthetics, spatial depth, and contemplative philosophy. Hand-sculpted in Canvas, SVG, Zdog, GSAP, and Anime.js.
+            </p>
+          </div>
+
+          <div class="footer-initiative-col">
+            <span class="col-title">INITIATIVE & CREDITS</span>
+            <div class="initiative-meta">
+              <h4 class="initiative-title">Project AKL</h4>
+              <p class="initiative-desc">An education Information Initiative by <strong>augastinklazar</strong></p>
+            </div>
+            <ul class="social-links">
+              <li>
+                <a href="https://github.com/augastinklazar" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub — augastinklazar">
+                  <svg class="social-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                  </svg>
+                  <span>github.com/augastinklazar</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/augastin-k-lazar/" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn — augastin-k-lazar">
+                  <svg class="social-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                  <span>linkedin.com/in/augastin-k-lazar</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-links-col">
+            <span class="col-title">SECTIONS</span>
+            <ul class="footer-links">
+              <li><a href="#shichijuni-ko">01 — 72 Micro-Seasons (七十二候)</a></li>
+              <li><a href="#shibui">02 — Shibui Restraint (渋味)</a></li>
+              <li><a href="#iki">03 — Edo's Flair (粋)</a></li>
+              <li><a href="#kintsugi">04 — Golden Repair (金継ぎ)</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-meta-col">
+            <span class="col-title">NAVIGATION</span>
+            <div class="return-portal-card">
+              <a href="./index.html" class="portal-jump-btn">
+                <span class="btn-arrow">←</span>
+                <span class="btn-text">RETURN TO 2.5D TOUR PORTAL</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+          <span class="copyright">一期一会 © 2026 Project AKL — An education Information Initiative by augastinklazar. All rights reserved.</span>
+          <a href="./index.html" class="back-to-top">
+            BACK TO HOME PORTAL <span class="arrow-up">←</span>
+          </a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+
+  <script type="module" src="./src/narrative.js"></script>
+</body>
+</html>
