@@ -48,9 +48,9 @@ export class ContentAnimations {
     const sections = [
       {
         id: '#shichijuni-ko',
-        bg: '#B4A582', // Rikyū-shiracha (利休白茶 - Sen no Rikyū tea tan)
-        text: '#00A3AF', // Asagi-iro (浅葱色 - Fresh spring water cyan)
-        accent: '#D4AF37',
+        bg: '#C5BAA2', // Rikyū-shiracha (利休白茶 - Warm tea parchment)
+        text: '#14262B', // Aizumi (藍墨 - Deep Prussian Indigo Ink)
+        accent: '#007D88', // Asagi-iro (浅葱色 - Fresh spring water cyan accent)
         navLabel: '01 七十二候 — SHICHIJŪNI KŌ',
       },
       {

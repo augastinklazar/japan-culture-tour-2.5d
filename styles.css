@@ -1814,8 +1814,9 @@ body {
    15. NARRATIVE PAGE & AESTHETIC PHILOSOPHY STYLES
    -------------------------------------------------------------------------- */
 :root {
-  --bg-shichijuni: #B4A582;  /* 利休白茶: Rikyū-shiracha */
-  --text-shichijuni: #00A3AF;/* 浅葱色: Asagi-iro */
+  --bg-shichijuni: #C5BAA2;  /* 利休白茶: Rikyū-shiracha (Warm authentic tea parchment) */
+  --text-shichijuni: #14262B;/* 藍墨: Aizumi (Deep Prussian Indigo-Black) */
+  --accent-shichijuni: #007D88; /* 浅葱色: Asagi-iro */
   --bg-shibui: #1C1C1C;      /* 墨: Sumi Black */
   --text-shibui: #91989F;    /* 銀鼠: Gin-nezu Silver */
   --bg-iki: #745399;         /* 江戸紫: Edo-murasaki */
@@ -1825,7 +1826,7 @@ body {
 
   --narrative-bg: var(--bg-shichijuni);
   --narrative-text: var(--text-shichijuni);
-  --narrative-accent: #D4AF37;
+  --narrative-accent: #007D88;
 }
 
 .narrative-body {
@@ -1906,10 +1907,87 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   SECTION 1: SHICHIJŪNI KŌ & 2.5D ASTROLABE DIAL
+   SECTION 1: SHICHIJŪNI KŌ & 2.5D ASTROLABE DIAL (LEGIBLE ARCHIVAL TONE)
    -------------------------------------------------------------------------- */
 .section-shichijuni {
   position: relative;
+  background-color: var(--bg-shichijuni);
+  color: var(--text-shichijuni);
+}
+
+.section-shichijuni .narrative-article-body {
+  position: relative;
+  z-index: 5;
+  background: rgba(255, 255, 251, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 44px 48px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 251, 0.7);
+  box-shadow: 0 16px 40px rgba(20, 38, 43, 0.07);
+}
+
+.section-shichijuni .narrative-title {
+  color: #102024;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.section-shichijuni .narrative-subtitle {
+  color: #193339;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.section-shichijuni .narrative-subtitle em {
+  color: #00707A;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.section-shichijuni .article-paragraphs p {
+  color: #162B32;
+  opacity: 1;
+  font-size: 15.5px;
+  line-height: 2.0;
+  font-weight: 400;
+}
+
+.section-shichijuni .article-paragraphs em {
+  color: #00707A;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.section-shichijuni .vertical-quote-col .kanji-vertical {
+  color: #102024;
+  font-weight: 700;
+}
+
+.section-shichijuni .vertical-quote-col .kanji-vertical.sub-quote {
+  color: #213C44;
+}
+
+.section-shichijuni .vertical-quote-col .caption-tag {
+  background: #007D88;
+  color: #FFFFFB;
+}
+
+.section-shichijuni .vertical-quote-col .caption-en {
+  color: #162B32;
+  font-weight: 600;
+}
+
+.section-shichijuni .editorial-kicker {
+  color: #00707A;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.section-shichijuni .section-tag-hanko {
+  background: #007D88;
+  color: #FFFFFB;
+  border: 1px solid #005F67;
 }
 
 .seasonal-dial-wrapper {
@@ -1917,11 +1995,11 @@ body {
   right: 2%;
   top: 50%;
   transform: translateY(-50%);
-  width: 640px;
-  height: 640px;
+  width: 600px;
+  height: 600px;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.75;
+  opacity: 0.38;
 }
 
 .seasonal-dial-canvas {
@@ -1938,23 +2016,34 @@ body {
 }
 
 .season-pill {
-  background: rgba(255, 255, 251, 0.25);
-  border: 1px solid rgba(0, 163, 175, 0.35);
-  padding: 8px 16px;
-  border-radius: 20px;
+  background: rgba(255, 255, 251, 0.75);
+  border: 1px solid rgba(0, 125, 136, 0.35);
+  color: #102024;
   font-family: var(--font-mono);
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.08em;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
   backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(16, 32, 36, 0.06);
+  transition: all 0.3s ease;
+}
+
+.season-pill:hover {
+  background: #FFFFFB;
+  border-color: #007D88;
+  transform: translateY(-2px);
 }
 
 .pill-kanji {
   font-family: var(--font-serif);
-  color: var(--color-sumi);
+  color: #00707A;
   font-size: 12px;
+  font-weight: 700;
 }
 
 /* --------------------------------------------------------------------------
@@ -2036,7 +2125,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   SECTION 3: IKI ASYMMETRICAL EDITORIAL GRID
+   SECTION 3: IKI ASYMMETRICAL EDITORIAL GRID (ENHANCED FULL-WIDTH SPREAD)
    -------------------------------------------------------------------------- */
 .section-iki {
   background: #745399;
@@ -2044,29 +2133,31 @@ body {
 
 .iki-asymmetrical-grid {
   display: grid;
-  grid-template-columns: 140px 1.4fr 1.2fr;
-  grid-template-rows: auto auto;
-  gap: 40px;
+  grid-template-columns: 140px 1fr;
+  gap: 36px 48px;
   margin-top: 40px;
   align-items: start;
 }
 
 .cell-kanji {
-  grid-row: 1 / span 2;
+  grid-column: 1;
+  grid-row: 1 / span 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px 0;
+  justify-content: flex-start;
+  padding: 10px 0;
+  position: sticky;
+  top: 140px;
 }
 
 .iki-kanji-monumental {
   font-family: var(--font-serif);
-  font-size: clamp(120px, 14vw, 220px);
+  font-size: clamp(100px, 12vw, 180px);
   font-weight: 800;
   line-height: 0.9;
   color: var(--color-kurenai);
-  filter: drop-shadow(0 12px 24px rgba(203, 27, 69, 0.35));
+  filter: drop-shadow(0 12px 24px rgba(203, 27, 69, 0.4));
 }
 
 .iki-romaji-vertical {
@@ -2075,34 +2166,60 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.3em;
-  color: rgba(255, 255, 251, 0.6);
-  margin-top: 16px;
+  color: rgba(255, 255, 251, 0.65);
+  margin-top: 14px;
+}
+
+.iki-vertical-quote-pillar {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 251, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.iki-vertical-quote-pillar .kanji-vertical {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  color: #FFFFFB;
+  writing-mode: vertical-rl;
+  line-height: 1.8;
+}
+
+.iki-vertical-quote-pillar .sub-quote {
+  font-size: 12.5px;
+  color: rgba(255, 255, 251, 0.7);
 }
 
 .cell-header {
-  grid-column: 2 / span 2;
+  grid-column: 2;
 }
 
 .iki-title {
   font-family: var(--font-serif);
-  font-size: clamp(34px, 4vw, 56px);
+  font-size: clamp(34px, 4vw, 54px);
   font-weight: 800;
   color: #FFFFFB;
   margin-bottom: 20px;
+  line-height: 1.25;
 }
 
 .iki-quote-box {
-  background: rgba(203, 27, 69, 0.18);
+  background: rgba(203, 27, 69, 0.22);
   border-left: 3px solid var(--color-kurenai);
-  padding: 20px 24px;
+  padding: 20px 28px;
   border-radius: 0 6px 6px 0;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(6px);
 }
 
 .iki-quote-text {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 15px;
+  font-size: 15.5px;
   line-height: 1.7;
   color: #FFFFFB;
 }
@@ -2110,52 +2227,243 @@ body {
 .iki-author {
   display: block;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 251, 0.7);
-  margin-top: 6px;
+  color: rgba(255, 255, 251, 0.8);
+  margin-top: 8px;
 }
 
-.cell-vertical-pull {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0;
-}
-
-.cell-para-1, .cell-para-2 {
+/* Urabasari Secret Splendor Block */
+.cell-para-1 {
+  grid-column: 2;
   background: rgba(255, 255, 251, 0.1);
-  border: 1px solid rgba(255, 255, 251, 0.15);
-  padding: 32px 28px;
+  border: 1px solid rgba(255, 255, 251, 0.18);
+  padding: 34px 36px;
   border-radius: 8px;
-  font-size: 14.5px;
-  line-height: 1.85;
-  color: #FFFFFB;
   backdrop-filter: blur(8px);
 }
 
-.cell-subheading {
+.urabasari-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 251, 0.12);
+}
+
+.urabasari-badge {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: var(--color-kurenai);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  padding: 4px 10px;
+  background: rgba(203, 27, 69, 0.4);
+  color: #FFFFFB;
+  border-radius: 2px;
+  border: 1px solid rgba(203, 27, 69, 0.6);
+}
+
+.urabasari-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.urabasari-content-grid p {
+  font-size: 14.5px;
+  line-height: 1.88;
+  color: rgba(255, 255, 251, 0.95);
+}
+
+.urabasari-content-grid em {
+  color: #FFE885;
+  font-style: italic;
+}
+
+/* Triad of Chic Block (Fills all center & right space) */
+.cell-para-2 {
+  grid-column: 2;
+  background: rgba(255, 255, 251, 0.1);
+  border: 1px solid rgba(255, 255, 251, 0.18);
+  padding: 36px 36px 32px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.triad-block-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 14px;
 }
 
-.iki-triad-list {
-  list-style: none;
+.triad-main-heading {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFB;
+  margin-top: 4px;
+}
+
+.triad-seal {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 4px 12px;
+  background: var(--color-kurenai);
+  color: #FFFFFB;
+  border-radius: 2px;
+}
+
+.triad-intro-text {
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: rgba(255, 255, 251, 0.92);
+  margin-bottom: 24px;
+  max-width: 900px;
+}
+
+.iki-triad-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.triad-card {
+  background: rgba(28, 28, 28, 0.35);
+  border: 1px solid rgba(255, 255, 251, 0.15);
+  border-top: 3px solid var(--color-kurenai);
+  border-radius: 6px;
+  padding: 24px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 14px;
+  transition: transform 0.3s ease, border-top-color 0.3s ease, background 0.3s ease;
 }
 
-.iki-triad-list li {
-  font-size: 13.5px;
-  line-height: 1.6;
+.triad-card:hover {
+  transform: translateY(-4px);
+  background: rgba(28, 28, 28, 0.55);
+  border-top-color: #FFE885;
 }
 
-.iki-triad-list strong {
+.triad-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 251, 0.1);
+}
+
+.triad-kanji-stamp {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 800;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(203, 27, 69, 0.35);
   color: #FFE885;
+  border-radius: 4px;
+  border: 1px solid rgba(203, 27, 69, 0.6);
+  flex-shrink: 0;
+}
+
+.triad-card-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.triad-card-kicker {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  color: var(--color-kurenai);
+}
+
+.triad-card-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFB;
+  margin: 1px 0;
+}
+
+.triad-translation {
+  font-size: 11px;
+  color: rgba(255, 255, 251, 0.7);
+  font-style: italic;
+}
+
+.triad-card-body {
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(255, 255, 251, 0.9);
+  flex-grow: 1;
+  margin-bottom: 16px;
+}
+
+.triad-card-footer {
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 251, 0.12);
+}
+
+.triad-accent-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #FFE885;
+  font-style: italic;
+  display: block;
+}
+
+/* Triad Synthesis Bar */
+.triad-synthesis-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(203, 27, 69, 0.2);
+  border: 1px solid rgba(203, 27, 69, 0.35);
+  padding: 16px 22px;
+  border-radius: 6px;
+}
+
+.synthesis-hanko-seal {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 800;
+  width: 38px;
+  height: 38px;
+  background: var(--color-kurenai);
+  color: #FFFFFB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.synthesis-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.synthesis-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: #FFE885;
+  font-weight: 700;
+}
+
+.synthesis-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 251, 0.95);
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -2258,13 +2566,21 @@ body {
    -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
   .seasonal-dial-wrapper {
-    width: 480px;
-    height: 480px;
-    opacity: 0.55;
+    width: 440px;
+    height: 440px;
+    opacity: 0.32;
   }
   .iki-asymmetrical-grid {
-    grid-template-columns: 100px 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: 120px 1fr;
+    gap: 28px;
+  }
+  .iki-triad-cards {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .urabasari-content-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 }
 
@@ -2285,10 +2601,22 @@ body {
     grid-template-columns: 1fr;
   }
   .cell-kanji {
+    grid-column: 1;
     grid-row: auto;
+    position: static;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
   }
-  .cell-header {
-    grid-column: auto;
+  .iki-vertical-quote-pillar {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    border-left: 1px solid rgba(255, 255, 251, 0.2);
+    padding-left: 20px;
+  }
+  .cell-header, .cell-para-1, .cell-para-2 {
+    grid-column: 1;
   }
   .shibui-brush-prompt {
     flex-direction: column;
